@@ -18,7 +18,9 @@ export class StatisticsService {
     };
   }
 
-  static async updateStatistics(updates: Partial<BranchStatistics>): Promise<ApiResponse<BranchStatistics>> {
+  static async updateStatistics(
+    updates: Partial<BranchStatistics>
+  ): Promise<ApiResponse<BranchStatistics>> {
     try {
       Object.assign(branchStats, updates, { lastUpdated: new Date() });
       return {

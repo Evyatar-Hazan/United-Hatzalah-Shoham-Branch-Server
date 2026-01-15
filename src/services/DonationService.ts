@@ -4,9 +4,7 @@ import { Donation, DonationRequest, ApiResponse } from '../types/index';
 const donations: Donation[] = [];
 
 export class DonationService {
-  static async createDonation(
-    donationData: DonationRequest
-  ): Promise<ApiResponse<Donation>> {
+  static async createDonation(donationData: DonationRequest): Promise<ApiResponse<Donation>> {
     try {
       const donation: Donation = {
         id: `donation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -43,7 +41,9 @@ export class DonationService {
     };
   }
 
-  static async getDonationStats(): Promise<ApiResponse<{ totalDonations: number; totalAmount: number }>> {
+  static async getDonationStats(): Promise<
+    ApiResponse<{ totalDonations: number; totalAmount: number }>
+  > {
     const totalDonations = donations.length;
     const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
 

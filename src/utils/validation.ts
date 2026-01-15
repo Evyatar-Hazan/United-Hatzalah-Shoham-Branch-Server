@@ -29,9 +29,7 @@ export const validateData = <T>(
     return { valid: true, data: validatedData };
   } catch (error) {
     if (error instanceof z.ZodError) {
-      const message = error.issues
-        .map((e) => `${e.path.join('.')}: ${e.message}`)
-        .join(', ');
+      const message = error.issues.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
       return { valid: false, error: message };
     }
     return { valid: false, error: 'Validation failed' };
