@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: united-hatzalah-api
+    runtime: node
+    runtimeVersion: 20
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: FRONTEND_URL
+        sync: false
+        # Set this to your Netlify frontend URL
+        # e.g., https://united-hatzalah-shoham.netlify.app
+    autoDeploy: true
+    github:
+      branch: main
+      deployOnPush: true
