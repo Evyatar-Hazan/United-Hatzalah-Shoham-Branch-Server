@@ -7,6 +7,8 @@ const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const donations_1 = __importDefault(require("./routes/donations"));
 const statistics_1 = __importDefault(require("./routes/statistics"));
+const media_1 = __importDefault(require("./routes/media"));
+const contact_1 = __importDefault(require("./routes/contact"));
 const app = (0, express_1.default)();
 // Middleware
 app.use(express_1.default.json());
@@ -29,6 +31,8 @@ app.get('/api/health', (_req, res) => {
 // Routes
 app.use('/api/donations', donations_1.default);
 app.use('/api/statistics', statistics_1.default);
+app.use('/api/media', media_1.default);
+app.use('/api/contact', contact_1.default);
 // Error handling middleware
 app.use((err, _req, res) => {
     console.error('Error:', err);

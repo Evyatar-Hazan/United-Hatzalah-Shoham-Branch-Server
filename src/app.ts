@@ -1,7 +1,9 @@
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import donationsRouter from './routes/donations';
 import statisticsRouter from './routes/statistics';
+import mediaRouter from './routes/media';
+import contactRouter from './routes/contact';
 
 const app = express();
 
@@ -30,9 +32,11 @@ app.get('/api/health', (_req: Request, res: Response) => {
 // Routes
 app.use('/api/donations', donationsRouter);
 app.use('/api/statistics', statisticsRouter);
+app.use('/api/media', mediaRouter);
+app.use('/api/contact', contactRouter);
 
 // Error handling middleware
-app.use((err: Error, _req: Request, res: Response) => {
+app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Error:', err);
   res.status(500).json({
     success: false,

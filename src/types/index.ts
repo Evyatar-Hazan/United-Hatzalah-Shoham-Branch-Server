@@ -39,3 +39,44 @@ export interface ContactRequest {
   message: string;
   timestamp?: Date;
 }
+
+export interface GalleryItem {
+  id: number;
+  title: string;
+  category: string;
+  imageUrl?: string;
+}
+
+export interface Story {
+  id: number;
+  title: string;
+  description: string;
+  date: string;
+  image?: string;
+}
+
+export interface ContactMessage {
+  id: string;
+  name: string;
+  email: string;
+  message: string;
+  timestamp: Date;
+  status: 'received' | 'read' | 'replied';
+}
+
+export interface ContactInfo {
+  phone: string;
+  email: string;
+  address: string;
+  socialLinks: {
+    facebook: string;
+    instagram: string;
+    whatsapp: string;
+  };
+  emergencyNumber: string;
+  businessHours: {
+    weekday: string;
+    weekend: string;
+  };
+}
+
