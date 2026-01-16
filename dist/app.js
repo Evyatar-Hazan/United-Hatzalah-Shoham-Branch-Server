@@ -9,6 +9,8 @@ const donations_1 = __importDefault(require("./routes/donations"));
 const statistics_1 = __importDefault(require("./routes/statistics"));
 const media_1 = __importDefault(require("./routes/media"));
 const contact_1 = __importDefault(require("./routes/contact"));
+const auth_1 = __importDefault(require("./routes/auth"));
+const admin_1 = __importDefault(require("./routes/admin"));
 const app = (0, express_1.default)();
 // Middleware
 app.use(express_1.default.json());
@@ -33,8 +35,10 @@ app.use('/api/donations', donations_1.default);
 app.use('/api/statistics', statistics_1.default);
 app.use('/api/media', media_1.default);
 app.use('/api/contact', contact_1.default);
+app.use('/api/auth', auth_1.default);
+app.use('/api/admin', admin_1.default);
 // Error handling middleware
-app.use((err, _req, res) => {
+app.use((err, _req, res, _next) => {
     console.error('Error:', err);
     res.status(500).json({
         success: false,

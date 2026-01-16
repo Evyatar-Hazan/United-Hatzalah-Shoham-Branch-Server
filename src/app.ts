@@ -4,6 +4,8 @@ import donationsRouter from './routes/donations';
 import statisticsRouter from './routes/statistics';
 import mediaRouter from './routes/media';
 import contactRouter from './routes/contact';
+import authRouter from './routes/auth';
+import adminRouter from './routes/admin';
 
 const app = express();
 
@@ -34,6 +36,8 @@ app.use('/api/donations', donationsRouter);
 app.use('/api/statistics', statisticsRouter);
 app.use('/api/media', mediaRouter);
 app.use('/api/contact', contactRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/admin', adminRouter);
 
 // Error handling middleware
 app.use((err: Error, _req: Request, res: Response, _next: NextFunction) => {
