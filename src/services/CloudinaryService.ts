@@ -1,6 +1,15 @@
 import { v2 as cloudinary } from 'cloudinary';
 import { ApiResponse } from '../types/index';
 
+// Validate Cloudinary configuration
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+  console.warn('⚠️  Cloudinary credentials not configured. Please set:');
+  console.warn('   CLOUDINARY_CLOUD_NAME');
+  console.warn('   CLOUDINARY_API_KEY');
+  console.warn('   CLOUDINARY_API_SECRET');
+  console.warn('   at https://cloudinary.com');
+}
+
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
@@ -19,6 +28,15 @@ export class CloudinaryService {
     folder: string = 'united-hatzalah'
   ): Promise<ApiResponse<{ url: string; publicId: string }>> {
     try {
+      // Check if credentials are configured
+      if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY) {
+        return {
+          success: false,
+          error: 'Cloudinary not configured. Please set CLOUDINARY_CLOUD_NAME and CLOUDINARY_API_KEY in .env',
+          timestamp: new Date(),
+        };
+      }
+
       return new Promise((resolve) => {
         const uploadStream = cloudinary.uploader.upload_stream(
           {

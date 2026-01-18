@@ -36,14 +36,27 @@ router.post('/upload-image', upload.single('image'), async (req: AuthRequest, re
     }
 
     const folder = req.body.folder || 'general';
-    const result = await CloudinaryService.uploadImage(req.file.buffer, folder);
     
-    if (!result.success) {
-      res.status(400).json(result);
-      return;
+    // Try Cloudinary first, if configured
+    if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
+      const result = await CloudinaryService.uploadImage(req.file.buffer, folder);
+      if (!result.success) {
+        res.status(400).json(result);
+        return;
+      }
+      res.status(200).json(result);
+    } else {
+      // Fallback: Generate a mock URL for development
+      const mockUrl = `data:image/${req.file.mimetype.split('/')[1]};base64,${req.file.buffer.toString('base64')}`;
+      res.status(200).json({
+        success: true,
+        data: {
+          url: mockUrl,
+          publicId: `mock-${Date.now()}`,
+        },
+        timestamp: new Date(),
+      });
     }
-
-    res.status(200).json(result);
   } catch (error) {
     res.status(500).json({
       success: false,
