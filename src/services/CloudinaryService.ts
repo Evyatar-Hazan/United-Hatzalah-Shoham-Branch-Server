@@ -43,9 +43,9 @@ export class CloudinaryService {
             folder: `united-hatzalah/${folder}`,
             resource_type: 'auto',
             quality: 'auto',
-            width: 1200,
-            height: 1200,
-            crop: 'fill',
+            eager: [
+              { width: 400, height: 300, crop: 'fill', quality: 'auto' },
+            ],
           },
           (error, result) => {
             if (error) {
@@ -66,10 +66,17 @@ export class CloudinaryService {
               return;
             }
 
+            // Generate optimized URL with transformation for gallery display
+            // Format: c_fill,w_400,h_300/v{version}/{public_id}
+            const transformedUrl = result.secure_url.replace(
+              '/upload/',
+              '/upload/c_fill,w_400,h_300,q_auto/'
+            );
+
             resolve({
               success: true,
               data: {
-                url: result.secure_url,
+                url: transformedUrl,
                 publicId: result.public_id,
               },
               timestamp: new Date(),
