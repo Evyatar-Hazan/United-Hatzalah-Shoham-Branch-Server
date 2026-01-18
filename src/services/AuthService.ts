@@ -18,15 +18,36 @@ import { ApiResponse } from '../types/index';
 const ADMIN_EMAILS = [
   'admin@united-hatzalah.org',
   'shoham@united-hatzalah.org',
+  'EvyatarHazan3.14@gmail.com',
 ];
 
 export class AuthService {
   static async verifyGoogleToken(token: string): Promise<ApiResponse<any>> {
     try {
-      // Note: בייצור, יש לאמת את ה-token עם Google API
-      // כאן נעשה פענוח פשוט למטרות development
-      
-      const decodedToken = JSON.parse(Buffer.from(token.split('.')[1], 'base64').toString());
+      // Handle mock tokens in development (format: header.payload.signature)
+      const parts = token.split('.');
+      if (parts.length !== 3) {
+        return {
+          success: false,
+          error: 'Invalid token format',
+          timestamp: new Date(),
+        };
+      }
+
+      // Decode payload (middle part)
+      let decodedToken;
+      try {
+        const payload = parts[1];
+        // Add padding if needed
+        const padded = payload + '='.repeat((4 - (payload.length % 4)) % 4);
+        decodedToken = JSON.parse(Buffer.from(padded, 'base64').toString());
+      } catch (e) {
+        return {
+          success: false,
+          error: 'Failed to decode token payload',
+          timestamp: new Date(),
+        };
+      }
       
       if (!decodedToken.email_verified) {
         return {
