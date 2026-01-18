@@ -66,17 +66,20 @@ export class CloudinaryService {
               return;
             }
 
-            // Generate optimized URL with transformation for gallery display
-            // Format: c_fill,w_400,h_300/v{version}/{public_id}
-            const transformedUrl = result.secure_url.replace(
-              '/upload/',
-              '/upload/c_fill,w_400,h_300,q_auto/'
-            );
+            // Generate responsive URL with multiple transformations
+            // Using Cloudinary's image optimization for web:
+            // - c_fill: fill the container
+            // - w_1000: max width
+            // - q_auto: auto quality
+            // - f_auto: auto format (webp, avif, etc.)
+            const publicId = result.public_id;
+            const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
+            const optimizedUrl = `https://res.cloudinary.com/${cloudName}/image/upload/c_fill,w_1000,q_auto,f_auto/${publicId}`;
 
             resolve({
               success: true,
               data: {
-                url: transformedUrl,
+                url: optimizedUrl,
                 publicId: result.public_id,
               },
               timestamp: new Date(),
