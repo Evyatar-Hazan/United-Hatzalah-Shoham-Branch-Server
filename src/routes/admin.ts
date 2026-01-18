@@ -1,11 +1,57 @@
 import { Router, Response } from 'express';
+import multer from 'multer';
 import { AdminService } from '../services/AdminService';
+import { CloudinaryService } from '../services/CloudinaryService';
 import { authMiddleware, AuthRequest } from '../middleware/auth';
 
 const router = Router();
 
+// Configure multer for file uploads
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB max
+  fileFilter: (_req, file, cb) => {
+    // Only accept image files
+    if (!file.mimetype.startsWith('image/')) {
+      cb(new Error('Only image files are allowed'));
+    } else {
+      cb(null, true);
+    }
+  },
+});
+
 // Apply auth middleware to all admin routes
 router.use(authMiddleware);
+
+// Image Upload Endpoint
+router.post('/upload-image', upload.single('image'), async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.file) {
+      res.status(400).json({
+        success: false,
+        error: 'No image file provided',
+        timestamp: new Date(),
+      });
+      return;
+    }
+
+    const folder = req.body.folder || 'general';
+    const result = await CloudinaryService.uploadImage(req.file.buffer, folder);
+    
+    if (!result.success) {
+      res.status(400).json(result);
+      return;
+    }
+
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Upload failed',
+      timestamp: new Date(),
+    });
+  }
+});
 
 // Gallery Management
 router.get('/gallery', async (_req: AuthRequest, res: Response) => {
