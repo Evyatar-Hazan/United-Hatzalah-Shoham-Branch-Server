@@ -347,4 +347,60 @@ router.delete('/donations/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
+// Donors (תורמים וחסויות) Management
+router.get('/donors', async (_req: AuthRequest, res: Response) => {
+  try {
+    const result = await AdminService.getDonors();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
+router.post('/donors', async (req: AuthRequest, res: Response) => {
+  try {
+    const { name, category, logo } = req.body;
+    const result = await AdminService.addDonor(name, category, logo);
+    res.status(result.success ? 201 : 400).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
+router.put('/donors/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const result = await AdminService.updateDonor(id, req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
+router.delete('/donors/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const result = await AdminService.deleteDonor(id);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
 export default router;

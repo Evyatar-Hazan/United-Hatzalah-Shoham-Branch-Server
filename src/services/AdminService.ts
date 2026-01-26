@@ -1,9 +1,10 @@
-import { GalleryItem, Story, BranchStatistics, ContactInfo, ContactMessage, ApiResponse, Admin, Donation } from '../types/index';
+import { GalleryItem, Story, BranchStatistics, ContactInfo, ContactMessage, ApiResponse, Admin, Donation, Donor } from '../types/index';
 import { MediaService } from './MediaService';
 import { StatisticsService } from './StatisticsService';
 import { ContactService } from './ContactService';
 import { AuthService } from './AuthService';
 import { DonationService } from './DonationService';
+import { DonorsService } from './DonorsService';
 
 export class AdminService {
   // Gallery operations
@@ -202,5 +203,22 @@ export class AdminService {
 
   static async deleteDonation(id: string): Promise<ApiResponse<{ success: boolean }>> {
     return DonationService.deleteDonation(id);
+  }
+
+  // Donors (תורמים וחסויות) Management operations
+  static async getDonors(): Promise<ApiResponse<Donor[]>> {
+    return DonorsService.getDonors();
+  }
+
+  static async addDonor(name: string, category: string, logo?: string): Promise<ApiResponse<Donor>> {
+    return DonorsService.addDonor(name, category, logo);
+  }
+
+  static async updateDonor(id: string, updates: Partial<Donor>): Promise<ApiResponse<Donor>> {
+    return DonorsService.updateDonor(id, updates);
+  }
+
+  static async deleteDonor(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return DonorsService.deleteDonor(id);
   }
 }

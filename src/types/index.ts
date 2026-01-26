@@ -89,3 +89,9 @@ export interface Admin {
   addedBy?: string;
 }
 
+export interface Donor {
+  id: string;
+  name: string;
+  category: string;
+  logo?: string;
+}
