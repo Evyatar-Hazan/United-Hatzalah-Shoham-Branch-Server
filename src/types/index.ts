@@ -80,3 +80,12 @@ export interface ContactInfo {
   };
 }
 
+export interface Admin {
+  id: string;
+  email: string;
+  name: string;
+  picture?: string;
+  addedAt: Date;
+  addedBy?: string;
+}
+

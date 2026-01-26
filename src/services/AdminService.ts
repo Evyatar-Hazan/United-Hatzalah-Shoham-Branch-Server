@@ -1,7 +1,8 @@
-import { GalleryItem, Story, BranchStatistics, ContactInfo, ContactMessage, ApiResponse } from '../types/index';
+import { GalleryItem, Story, BranchStatistics, ContactInfo, ContactMessage, ApiResponse, Admin } from '../types/index';
 import { MediaService } from './MediaService';
 import { StatisticsService } from './StatisticsService';
 import { ContactService } from './ContactService';
+import { AuthService } from './AuthService';
 
 export class AdminService {
   // Gallery operations
@@ -172,4 +173,19 @@ export class AdminService {
   static async getContactMessages(): Promise<ApiResponse<ContactMessage[]>> {
     return ContactService.getContactMessages();
   }
-}
+  // Admin Management operations
+  static async getAdmins(): Promise<ApiResponse<Admin[]>> {
+    return AuthService.getAdmins();
+  }
+
+  static async addAdmin(adminData: { email: string; name: string; picture?: string; addedBy?: string }): Promise<ApiResponse<Admin>> {
+    return AuthService.addAdmin(adminData);
+  }
+
+  static async updateAdmin(id: string, updates: Partial<Admin>): Promise<ApiResponse<Admin>> {
+    return AuthService.updateAdmin(id, updates);
+  }
+
+  static async deleteAdmin(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return AuthService.deleteAdmin(id);
+  }}

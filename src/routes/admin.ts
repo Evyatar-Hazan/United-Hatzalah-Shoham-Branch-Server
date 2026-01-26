@@ -244,4 +244,65 @@ router.get('/contact-messages', async (_req: AuthRequest, res: Response) => {
   }
 });
 
+// Admin Management
+router.get('/admins', async (_req: AuthRequest, res: Response) => {
+  try {
+    const result = await AdminService.getAdmins();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
+router.post('/admins', async (req: AuthRequest, res: Response) => {
+  try {
+    const adminData = {
+      email: req.body.email,
+      name: req.body.name,
+      picture: req.body.picture,
+      addedBy: req.user?.email,
+    };
+    const result = await AdminService.addAdmin(adminData);
+    res.status(result.success ? 201 : 400).json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
+router.put('/admins/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const result = await AdminService.updateAdmin(id, req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
+router.delete('/admins/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const result = await AdminService.deleteAdmin(id);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
 export default router;
