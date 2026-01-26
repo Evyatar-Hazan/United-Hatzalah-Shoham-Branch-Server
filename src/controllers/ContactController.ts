@@ -4,7 +4,7 @@ import { validateData, ContactSchema } from '../utils/validation';
 import { ContactInput } from '../utils/validation';
 
 export class ContactController {
-  static async submitContactForm(req: Request, res: Response): Promise<void> {
+  static async submitContactMessage(req: Request, res: Response): Promise<void> {
     try {
       const validation = validateData<ContactInput>(ContactSchema, req.body);
 
@@ -17,7 +17,7 @@ export class ContactController {
         return;
       }
 
-      const result = await ContactService.submitContactForm(validation.data!);
+      const result = await ContactService.submitContactMessage(validation.data!);
 
       if (!result.success) {
         res.status(400).json(result);
@@ -34,18 +34,7 @@ export class ContactController {
     }
   }
 
-  static async getContactInfo(_req: Request, res: Response): Promise<void> {
-    try {
-      const result = await ContactService.getContactInfo();
-      res.json(result);
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
-        timestamp: new Date(),
-      });
-    }
-  }
+  // getContactInfo was removed in Prisma refactor
 
   static async getContactMessages(_req: Request, res: Response): Promise<void> {
     try {

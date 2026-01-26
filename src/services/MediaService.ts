@@ -1,124 +1,200 @@
 import { GalleryItem, Story, ApiResponse } from '../types/index';
-
-interface GalleryItemData {
-  title: string;
-  category: string;
-  imageUrl?: string;
-}
-
-interface StoryData {
-  title: string;
-  description: string;
-  date: string;
-  image?: string;
-}
-
-/* In-memory storage (in production, this would be a database) */
-const galleryItems: GalleryItem[] = [
-  {
-    id: 1,
-    title: 'קוד אחמר',
-    category: 'סדנה',
-    imageUrl: 'https://via.placeholder.com/300x200?text=Image+1',
-  },
-  {
-    id: 2,
-    title: 'הכשרה בשטח',
-    category: 'הכשרה',
-    imageUrl: 'https://via.placeholder.com/300x200?text=Image+2',
-  },
-  {
-    id: 3,
-    title: 'צוות חדש',
-    category: 'מתנדבים',
-    imageUrl: 'https://via.placeholder.com/300x200?text=Image+3',
-  },
-  {
-    id: 4,
-    title: 'אמבולנס חדש',
-    category: 'ציוד',
-    imageUrl: 'https://via.placeholder.com/300x200?text=Image+4',
-  },
-  {
-    id: 5,
-    title: 'פעילות קהילתית',
-    category: 'קהילה',
-    imageUrl: 'https://via.placeholder.com/300x200?text=Image+5',
-  },
-  {
-    id: 6,
-    title: 'תרגיל הצלה',
-    category: 'הכשרה',
-    imageUrl: 'https://via.placeholder.com/300x200?text=Image+6',
-  },
-];
-
-const stories: Story[] = [
-  {
-    id: 1,
-    title: 'הצלה במטבח',
-    description:
-      'אדם בן 62 נפל בחצר ביתו. המתנדבים שלנו הגיעו תוך 4 דקות, סיפקו עזרה ראשונה והעבירו אותו בטוח לבית החולים.',
-    date: '15 בינואר 2024',
-  },
-  {
-    id: 2,
-    title: 'נערה צעירה בחנק',
-    description:
-      'קריאה חירום לדירה בשכונת הדר. מתנדב עם הכשרה בעזרה ראשונה בצע טכניקת פרוק חנק וחציא חיי הנערה.',
-    date: '8 בדצמבר 2023',
-  },
-  {
-    id: 3,
-    title: 'גבר בהתקף לב',
-    description:
-      'קריאה בחצות הלילה לגבר בן 55 שסבול התקף לב. המתנדבים השתמשו במכשיר הדיפיברילציה וחזרו את הלב לקצב תקין.',
-    date: '22 בנובמבר 2023',
-  },
-];
+import prisma from '../db/prisma';
 
 export class MediaService {
-  static async getGallery(): Promise<ApiResponse<GalleryItem[]>> {
-    return {
-      success: true,
-      data: galleryItems,
-      timestamp: new Date(),
-    };
+  // Gallery methods
+  static async getGalleryItems(): Promise<ApiResponse<GalleryItem[]>> {
+    try {
+      const items = await prisma.galleryItem.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
+      return {
+        success: true,
+        data: items,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch gallery items',
+        timestamp: new Date(),
+      };
+    }
   }
 
+  static async addGalleryItem(item: Omit<GalleryItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<GalleryItem>> {
+    try {
+      const newItem = await prisma.galleryItem.create({
+        data: item,
+      });
+
+      return {
+        success: true,
+        data: newItem,
+        message: 'Gallery item added successfully',
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to add gallery item',
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  static async updateGalleryItem(id: string, updates: Partial<GalleryItem>): Promise<ApiResponse<GalleryItem>> {
+    try {
+      const item = await prisma.galleryItem.update({
+        where: { id },
+        data: updates,
+      });
+
+      return {
+        success: true,
+        data: item,
+        message: 'Gallery item updated successfully',
+        timestamp: new Date(),
+      };
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        return {
+          success: false,
+          error: 'Gallery item not found',
+          timestamp: new Date(),
+        };
+      }
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update gallery item',
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  static async deleteGalleryItem(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    try {
+      await prisma.galleryItem.delete({
+        where: { id },
+      });
+
+      return {
+        success: true,
+        data: { success: true },
+        message: 'Gallery item deleted successfully',
+        timestamp: new Date(),
+      };
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        return {
+          success: false,
+          error: 'Gallery item not found',
+          timestamp: new Date(),
+        };
+      }
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete gallery item',
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  // Story methods
   static async getStories(): Promise<ApiResponse<Story[]>> {
-    return {
-      success: true,
-      data: stories,
-      timestamp: new Date(),
-    };
+    try {
+      const stories = await prisma.story.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
+      return {
+        success: true,
+        data: stories,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch stories',
+        timestamp: new Date(),
+      };
+    }
   }
 
-  static async addGalleryItem(item: GalleryItemData): Promise<ApiResponse<GalleryItem>> {
-    const newItem: GalleryItem = {
-      id: Math.max(...galleryItems.map((i) => i.id), 0) + 1,
-      ...item,
-    };
-    galleryItems.push(newItem);
-    return {
-      success: true,
-      data: newItem,
-      message: 'Gallery item added successfully',
-      timestamp: new Date(),
-    };
+  static async addStory(story: Omit<Story, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Story>> {
+    try {
+      const newStory = await prisma.story.create({
+        data: story,
+      });
+
+      return {
+        success: true,
+        data: newStory,
+        message: 'Story added successfully',
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to add story',
+        timestamp: new Date(),
+      };
+    }
   }
 
-  static async addStory(story: StoryData): Promise<ApiResponse<Story>> {
-    const newStory: Story = {
-      id: Math.max(...stories.map((s) => s.id), 0) + 1,
-      ...story,
-    };
-    stories.push(newStory);
-    return {
-      success: true,
-      data: newStory,
-      message: 'Story added successfully',
-      timestamp: new Date(),
-    };
+  static async updateStory(id: string, updates: Partial<Story>): Promise<ApiResponse<Story>> {
+    try {
+      const story = await prisma.story.update({
+        where: { id },
+        data: updates,
+      });
+
+      return {
+        success: true,
+        data: story,
+        message: 'Story updated successfully',
+        timestamp: new Date(),
+      };
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        return {
+          success: false,
+          error: 'Story not found',
+          timestamp: new Date(),
+        };
+      }
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update story',
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  static async deleteStory(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    try {
+      await prisma.story.delete({
+        where: { id },
+      });
+
+      return {
+        success: true,
+        data: { success: true },
+        message: 'Story deleted successfully',
+        timestamp: new Date(),
+      };
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        return {
+          success: false,
+          error: 'Story not found',
+          timestamp: new Date(),
+        };
+      }
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete story',
+        timestamp: new Date(),
+      };
+    }
   }
 }

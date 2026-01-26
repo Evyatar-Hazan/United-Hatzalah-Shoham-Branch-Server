@@ -1,18 +1,11 @@
 import { Donor, ApiResponse } from '../types/index';
+import prisma from '../db/prisma';
 
-/* In-memory storage (in production, this would be a database) */
-let donors: Donor[] = [
-  { id: '1', name: 'תורם אחד', category: 'תורם ראשי', logo: undefined },
-  { id: '2', name: 'תורם שני', category: 'תורם', logo: undefined },
-  { id: '3', name: 'תורם שלישי', category: 'תורם', logo: undefined },
-  { id: '4', name: 'תורם רביעי', category: 'תורם', logo: undefined },
-  { id: '5', name: 'תורם חמישי', category: 'תורם', logo: undefined },
-  { id: '6', name: 'תורם שישי', category: 'שותף', logo: undefined },
-];
 
 export class DonorsService {
   static async getDonors(): Promise<ApiResponse<Donor[]>> {
     try {
+      const donors = await prisma.donor.findMany();
       return {
         success: true,
         data: donors,
@@ -38,14 +31,13 @@ export class DonorsService {
         };
       }
 
-      const newDonor: Donor = {
-        id: `donor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        name,
-        category,
-        logo,
-      };
-
-      donors.push(newDonor);
+      const newDonor = await prisma.donor.create({
+        data: {
+          name,
+          category,
+          logo: logo || '',
+        },
+      });
 
       return {
         success: true,
@@ -64,31 +56,25 @@ export class DonorsService {
 
   static async updateDonor(id: string, updates: Partial<Donor>): Promise<ApiResponse<Donor>> {
     try {
-      const index = donors.findIndex((d) => d.id === id);
+      const updatedDonor = await prisma.donor.update({
+        where: { id },
+        data: updates,
+      });
 
-      if (index === -1) {
+      return {
+        success: true,
+        data: updatedDonor,
+        message: 'Donor updated successfully',
+        timestamp: new Date(),
+      };
+    } catch (error: any) {
+      if (error.code === 'P2025') {
         return {
           success: false,
           error: 'Donor not found',
           timestamp: new Date(),
         };
       }
-
-      const updated: Donor = {
-        ...donors[index],
-        ...updates,
-        id: donors[index].id, // Preserve ID
-      };
-
-      donors[index] = updated;
-
-      return {
-        success: true,
-        data: updated,
-        message: 'Donor updated successfully',
-        timestamp: new Date(),
-      };
-    } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to update donor',
@@ -99,17 +85,9 @@ export class DonorsService {
 
   static async deleteDonor(id: string): Promise<ApiResponse<{ success: boolean }>> {
     try {
-      const index = donors.findIndex((d) => d.id === id);
-
-      if (index === -1) {
-        return {
-          success: false,
-          error: 'Donor not found',
-          timestamp: new Date(),
-        };
-      }
-
-      donors.splice(index, 1);
+      await prisma.donor.delete({
+        where: { id },
+      });
 
       return {
         success: true,
@@ -117,7 +95,14 @@ export class DonorsService {
         message: 'Donor deleted successfully',
         timestamp: new Date(),
       };
-    } catch (error) {
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        return {
+          success: false,
+          error: 'Donor not found',
+          timestamp: new Date(),
+        };
+      }
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to delete donor',

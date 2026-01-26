@@ -1,26 +1,22 @@
 import { Donation, DonationRequest, ApiResponse } from '../types/index';
-
-/* In-memory storage (in production, this would be a database) */
-const donations: Donation[] = [];
+import prisma from '../db/prisma';
 
 export class DonationService {
   static async createDonation(donationData: DonationRequest): Promise<ApiResponse<Donation>> {
     try {
-      const donation: Donation = {
-        id: `donation_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        amount: donationData.amount,
-        donorName: donationData.donorName,
-        donorEmail: donationData.donorEmail,
-        message: donationData.message,
-        timestamp: new Date(),
-        status: 'completed',
-      };
-
-      donations.push(donation);
+      const donation = await prisma.donation.create({
+        data: {
+          amount: donationData.amount,
+          donorName: donationData.donorName,
+          donorEmail: donationData.donorEmail,
+          message: donationData.message,
+          status: 'completed',
+        },
+      });
 
       return {
         success: true,
-        data: donation,
+        data: donation as Donation,
         message: 'Donation received successfully',
         timestamp: new Date(),
       };
@@ -34,49 +30,73 @@ export class DonationService {
   }
 
   static async getDonations(): Promise<ApiResponse<Donation[]>> {
-    return {
-      success: true,
-      data: donations,
-      timestamp: new Date(),
-    };
+    try {
+      const donations = await prisma.donation.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
+      return {
+        success: true,
+        data: donations as Donation[],
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch donations',
+        timestamp: new Date(),
+      };
+    }
   }
 
   static async getDonationStats(): Promise<
     ApiResponse<{ totalDonations: number; totalAmount: number }>
   > {
-    const totalDonations = donations.length;
-    const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
+    try {
+      const donations = await prisma.donation.findMany();
+      const totalDonations = donations.length;
+      const totalAmount = donations.reduce((sum, d) => sum + d.amount, 0);
 
-    return {
-      success: true,
-      data: {
-        totalDonations,
-        totalAmount,
-      },
-      timestamp: new Date(),
-    };
+      return {
+        success: true,
+        data: {
+          totalDonations,
+          totalAmount,
+        },
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch donation stats',
+        timestamp: new Date(),
+      };
+    }
   }
 
-  static async updateDonation(id: string, updates: Partial<Donation>): Promise<ApiResponse<Donation>> {
+  static async updateDonation(
+    id: string,
+    updates: Partial<Donation>
+  ): Promise<ApiResponse<Donation>> {
     try {
-      const index = donations.findIndex(d => d.id === id);
-      if (index === -1) {
+      const updatedDonation = await prisma.donation.update({
+        where: { id },
+        data: updates,
+      });
+
+      return {
+        success: true,
+        data: updatedDonation as Donation,
+        message: 'Donation updated successfully',
+        timestamp: new Date(),
+      };
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
         return {
           success: false,
           error: 'Donation not found',
           timestamp: new Date(),
         };
       }
-
-      donations[index] = { ...donations[index], ...updates, id: donations[index].id };
-
-      return {
-        success: true,
-        data: donations[index],
-        message: 'Donation updated successfully',
-        timestamp: new Date(),
-      };
-    } catch (error) {
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to update donation',
@@ -87,16 +107,9 @@ export class DonationService {
 
   static async deleteDonation(id: string): Promise<ApiResponse<{ success: boolean }>> {
     try {
-      const index = donations.findIndex(d => d.id === id);
-      if (index === -1) {
-        return {
-          success: false,
-          error: 'Donation not found',
-          timestamp: new Date(),
-        };
-      }
-
-      donations.splice(index, 1);
+      await prisma.donation.delete({
+        where: { id },
+      });
 
       return {
         success: true,
@@ -104,7 +117,14 @@ export class DonationService {
         message: 'Donation deleted successfully',
         timestamp: new Date(),
       };
-    } catch (error) {
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error && error.code === 'P2025') {
+        return {
+          success: false,
+          error: 'Donation not found',
+          timestamp: new Date(),
+        };
+      }
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Failed to delete donation',

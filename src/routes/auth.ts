@@ -3,21 +3,19 @@ import { AuthService } from '../services/AuthService';
 
 const router = Router();
 
-// Google OAuth verification
+// Google OAuth verification (refactored: expect email/name/picture)
 router.post('/google-verify', async (req: Request, res: Response) => {
   try {
-    const { token } = req.body;
-    const result = await AuthService.verifyGoogleToken(token);
-    
-    if (!result.success) {
-      res.status(401).json({
+    const { email, name, picture } = req.body;
+    if (!email || !name) {
+      res.status(400).json({
         success: false,
-        error: result.error,
+        error: 'email and name are required',
         timestamp: new Date(),
       });
       return;
     }
-
+    const result = await AuthService.findOrCreateAdmin(email, name, picture);
     res.json(result);
   } catch (error) {
     res.status(500).json({
@@ -28,12 +26,25 @@ router.post('/google-verify', async (req: Request, res: Response) => {
   }
 });
 
-// Check if user is admin
+// Check if user is admin (refactored)
 router.post('/check-admin', async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
-    const result = await AuthService.checkIfAdmin(email);
-    res.json(result);
+    if (!email) {
+      res.status(400).json({
+        success: false,
+        error: 'email is required',
+        timestamp: new Date(),
+      });
+      return;
+    }
+    const adminsRes = await AuthService.getAdmins();
+    if (!adminsRes.success || !adminsRes.data) {
+      res.status(500).json(adminsRes);
+      return;
+    }
+    const isAdmin = adminsRes.data.some(a => a.email === email);
+    res.json({ success: true, data: { isAdmin }, timestamp: new Date() });
   } catch (error) {
     res.status(500).json({
       success: false,

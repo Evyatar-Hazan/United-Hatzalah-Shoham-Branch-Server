@@ -96,7 +96,7 @@ router.post('/gallery', async (req: AuthRequest, res: Response) => {
 router.put('/gallery/:id', async (req: AuthRequest, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const result = await AdminService.updateGalleryItem(parseInt(id), req.body);
+    const result = await AdminService.updateGalleryItem(id, req.body);
     res.json(result);
   } catch (error) {
     res.status(500).json({
@@ -110,7 +110,7 @@ router.put('/gallery/:id', async (req: AuthRequest, res: Response) => {
 router.delete('/gallery/:id', async (req: AuthRequest, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const result = await AdminService.deleteGalleryItem(parseInt(id));
+    const result = await AdminService.deleteGalleryItem(id);
     res.json(result);
   } catch (error) {
     res.status(500).json({
@@ -151,7 +151,7 @@ router.post('/stories', async (req: AuthRequest, res: Response) => {
 router.put('/stories/:id', async (req: AuthRequest, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const result = await AdminService.updateStory(parseInt(id), req.body);
+    const result = await AdminService.updateStory(id, req.body);
     res.json(result);
   } catch (error) {
     res.status(500).json({
@@ -165,7 +165,7 @@ router.put('/stories/:id', async (req: AuthRequest, res: Response) => {
 router.delete('/stories/:id', async (req: AuthRequest, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const result = await AdminService.deleteStory(parseInt(id));
+    const result = await AdminService.deleteStory(id);
     res.json(result);
   } catch (error) {
     res.status(500).json({
@@ -203,32 +203,7 @@ router.put('/statistics', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// Contact Info Management
-router.get('/contact-info', async (_req: AuthRequest, res: Response) => {
-  try {
-    const result = await AdminService.getContactInfo();
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Internal server error',
-      timestamp: new Date(),
-    });
-  }
-});
-
-router.put('/contact-info', async (req: AuthRequest, res: Response) => {
-  try {
-    const result = await AdminService.updateContactInfo(req.body);
-    res.json(result);
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : 'Internal server error',
-      timestamp: new Date(),
-    });
-  }
-});
+// Contact Info routes removed in Prisma refactor
 
 // Contact Messages
 router.get('/contact-messages', async (_req: AuthRequest, res: Response) => {

@@ -1,4 +1,4 @@
-import { GalleryItem, Story, BranchStatistics, ContactInfo, ContactMessage, ApiResponse, Admin, Donation, Donor } from '../types/index';
+import { GalleryItem, Story, Statistics, ContactMessage, ApiResponse, Admin, Donation, Donor } from '../types/index';
 import { MediaService } from './MediaService';
 import { StatisticsService } from './StatisticsService';
 import { ContactService } from './ContactService';
@@ -9,71 +9,19 @@ import { DonorsService } from './DonorsService';
 export class AdminService {
   // Gallery operations
   static async getGallery(): Promise<ApiResponse<GalleryItem[]>> {
-    return MediaService.getGallery();
+    return MediaService.getGalleryItems();
   }
 
-  static async addGalleryItem(item: any): Promise<ApiResponse<GalleryItem>> {
+  static async addGalleryItem(item: Omit<GalleryItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<GalleryItem>> {
     return MediaService.addGalleryItem(item);
   }
 
-  static async updateGalleryItem(id: number, updates: Partial<GalleryItem>): Promise<ApiResponse<GalleryItem>> {
-    try {
-      const galleryResult = await MediaService.getGallery();
-      const galleries = galleryResult.data || [];
-      const index = galleries.findIndex(g => g.id === id);
-
-      if (index === -1) {
-        return {
-          success: false,
-          error: 'Gallery item not found',
-          timestamp: new Date(),
-        };
-      }
-
-      galleries[index] = { ...galleries[index], ...updates };
-
-      return {
-        success: true,
-        data: galleries[index],
-        message: 'Gallery item updated successfully',
-        timestamp: new Date(),
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update gallery item',
-        timestamp: new Date(),
-      };
-    }
+  static async updateGalleryItem(id: string, updates: Partial<GalleryItem>): Promise<ApiResponse<GalleryItem>> {
+    return MediaService.updateGalleryItem(id, updates);
   }
 
-  static async deleteGalleryItem(id: number): Promise<ApiResponse<{ success: boolean }>> {
-    try {
-      const galleryResult = await MediaService.getGallery();
-      const galleries = galleryResult.data || [];
-      const filtered = galleries.filter(g => g.id !== id);
-
-      if (filtered.length === galleries.length) {
-        return {
-          success: false,
-          error: 'Gallery item not found',
-          timestamp: new Date(),
-        };
-      }
-
-      return {
-        success: true,
-        data: { success: true },
-        message: 'Gallery item deleted successfully',
-        timestamp: new Date(),
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to delete gallery item',
-        timestamp: new Date(),
-      };
-    }
+  static async deleteGalleryItem(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return MediaService.deleteGalleryItem(id);
   }
 
   // Stories operations
@@ -81,95 +29,29 @@ export class AdminService {
     return MediaService.getStories();
   }
 
-  static async addStory(story: any): Promise<ApiResponse<Story>> {
+  static async addStory(story: Omit<Story, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Story>> {
     return MediaService.addStory(story);
   }
 
-  static async updateStory(id: number, updates: Partial<Story>): Promise<ApiResponse<Story>> {
-    try {
-      const storiesResult = await MediaService.getStories();
-      const stories = storiesResult.data || [];
-      const index = stories.findIndex(s => s.id === id);
-
-      if (index === -1) {
-        return {
-          success: false,
-          error: 'Story not found',
-          timestamp: new Date(),
-        };
-      }
-
-      stories[index] = { ...stories[index], ...updates };
-
-      return {
-        success: true,
-        data: stories[index],
-        message: 'Story updated successfully',
-        timestamp: new Date(),
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update story',
-        timestamp: new Date(),
-      };
-    }
+  static async updateStory(id: string, updates: Partial<Story>): Promise<ApiResponse<Story>> {
+    return MediaService.updateStory(id, updates);
   }
 
-  static async deleteStory(id: number): Promise<ApiResponse<{ success: boolean }>> {
-    try {
-      const storiesResult = await MediaService.getStories();
-      const stories = storiesResult.data || [];
-      const filtered = stories.filter(s => s.id !== id);
-
-      if (filtered.length === stories.length) {
-        return {
-          success: false,
-          error: 'Story not found',
-          timestamp: new Date(),
-        };
-      }
-
-      return {
-        success: true,
-        data: { success: true },
-        message: 'Story deleted successfully',
-        timestamp: new Date(),
-      };
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to delete story',
-        timestamp: new Date(),
-      };
-    }
+  static async deleteStory(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return MediaService.deleteStory(id);
   }
 
   // Statistics operations
-  static async getStatistics(): Promise<ApiResponse<BranchStatistics>> {
+  static async getStatistics(): Promise<ApiResponse<Statistics | null>> {
     return StatisticsService.getStatistics();
   }
 
-  static async updateStatistics(updates: Partial<BranchStatistics>): Promise<ApiResponse<BranchStatistics>> {
+  static async updateStatistics(updates: Partial<Statistics>): Promise<ApiResponse<Statistics>> {
     return StatisticsService.updateStatistics(updates);
   }
 
   // Contact Info operations
-  static async getContactInfo(): Promise<ApiResponse<ContactInfo>> {
-    return ContactService.getContactInfo();
-  }
-
-  static async updateContactInfo(updates: Partial<ContactInfo>): Promise<ApiResponse<any>> {
-    try {
-      return ContactService.updateContactInfo(updates);
-    } catch (error) {
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Failed to update contact info',
-        timestamp: new Date(),
-      };
-    }
-  }
+  // Contact Info methods removed in Prisma refactor
 
   // Contact Messages
   static async getContactMessages(): Promise<ApiResponse<ContactMessage[]>> {
@@ -180,8 +62,8 @@ export class AdminService {
     return AuthService.getAdmins();
   }
 
-  static async addAdmin(adminData: { email: string; name: string; picture?: string; addedBy?: string }): Promise<ApiResponse<Admin>> {
-    return AuthService.addAdmin(adminData);
+  static async addAdmin(adminData: { email: string; name: string; picture?: string }): Promise<ApiResponse<Admin>> {
+    return AuthService.findOrCreateAdmin(adminData.email, adminData.name, adminData.picture);
   }
 
   static async updateAdmin(id: string, updates: Partial<Admin>): Promise<ApiResponse<Admin>> {
@@ -189,7 +71,8 @@ export class AdminService {
   }
 
   static async deleteAdmin(id: string): Promise<ApiResponse<{ success: boolean }>> {
-    return AuthService.deleteAdmin(id);
+    const res = await AuthService.deactivateAdmin(id);
+    return res;
   }
 
   // Donation Management operations

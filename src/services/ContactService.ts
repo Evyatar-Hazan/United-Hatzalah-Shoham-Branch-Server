@@ -1,98 +1,106 @@
-import { ContactMessage, ContactInfo, ApiResponse } from '../types/index';
-import { ContactInput } from '../utils/validation';
-
-/* In-memory storage for contact messages */
-const contactMessages: ContactMessage[] = [];
-
-/* Contact information for the branch */
-let contactInfo: ContactInfo = {
-  phone: '+972 1-234-567-89',
-  email: 'info@shoham.united-hatzalah.org',
-  address: 'שוהם, ישראל',
-  socialLinks: {
-    facebook: 'https://facebook.com/unitedHatzalahShoham',
-    instagram: 'https://instagram.com/unitedHatzalahShoham',
-    whatsapp: 'https://wa.me/972123456789',
-  },
-  emergencyNumber: '101',
-  businessHours: {
-    weekday: '24/7',
-    weekend: '24/7',
-  },
-};
+import { ContactMessage, ContactRequest, ApiResponse } from '../types/index';
+import prisma from '../db/prisma';
 
 export class ContactService {
-  static async submitContactForm(
-    formData: ContactInput
-  ): Promise<ApiResponse<ContactMessage>> {
+  static async submitContactMessage(contactData: ContactRequest): Promise<ApiResponse<ContactMessage>> {
     try {
-      const message: ContactMessage = {
-        id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        name: formData.name,
-        email: formData.email,
-        message: formData.message,
-        timestamp: new Date(),
-        status: 'received',
-      };
-
-      contactMessages.push(message);
+      const message = await prisma.contactMessage.create({
+        data: {
+          name: contactData.name,
+          email: contactData.email,
+          phone: contactData.phone,
+          subject: contactData.subject,
+          message: contactData.message,
+          status: 'pending',
+        },
+      });
 
       return {
         success: true,
-        data: message,
-        message: 'Your message has been received successfully',
+        data: message as unknown as ContactMessage,
+        message: 'Contact message received successfully',
         timestamp: new Date(),
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to submit contact form',
+        error: error instanceof Error ? error.message : 'Failed to submit contact message',
         timestamp: new Date(),
       };
     }
   }
 
-  static async getContactInfo(): Promise<ApiResponse<ContactInfo>> {
-    return {
-      success: true,
-      data: contactInfo,
-      timestamp: new Date(),
-    };
-  }
-
   static async getContactMessages(): Promise<ApiResponse<ContactMessage[]>> {
-    return {
-      success: true,
-      data: contactMessages,
-      timestamp: new Date(),
-    };
-  }
-
-  static async updateContactInfo(updates: Partial<ContactInfo>): Promise<ApiResponse<ContactInfo>> {
     try {
-      contactInfo = {
-        ...contactInfo,
-        ...updates,
-        socialLinks: {
-          ...contactInfo.socialLinks,
-          ...(updates.socialLinks || {}),
-        },
-        businessHours: {
-          ...contactInfo.businessHours,
-          ...(updates.businessHours || {}),
-        },
-      };
-
+      const messages = await prisma.contactMessage.findMany({
+        orderBy: { createdAt: 'desc' },
+      });
       return {
         success: true,
-        data: contactInfo,
-        message: 'Contact info updated successfully',
+        data: messages as unknown as ContactMessage[],
         timestamp: new Date(),
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to update contact info',
+        error: error instanceof Error ? error.message : 'Failed to fetch contact messages',
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  static async updateMessageStatus(id: string, status: 'pending' | 'read' | 'replied'): Promise<ApiResponse<ContactMessage>> {
+    try {
+      const message = await prisma.contactMessage.update({
+        where: { id },
+        data: { status },
+      });
+
+      return {
+        success: true,
+        data: message as unknown as ContactMessage,
+        message: 'Message status updated successfully',
+        timestamp: new Date(),
+      };
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error && (error as any).code === 'P2025') {
+        return {
+          success: false,
+          error: 'Contact message not found',
+          timestamp: new Date(),
+        };
+      }
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update message status',
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  static async deleteContactMessage(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    try {
+      await prisma.contactMessage.delete({
+        where: { id },
+      });
+
+      return {
+        success: true,
+        data: { success: true },
+        message: 'Contact message deleted successfully',
+        timestamp: new Date(),
+      };
+    } catch (error: unknown) {
+      if (error && typeof error === 'object' && 'code' in error && (error as any).code === 'P2025') {
+        return {
+          success: false,
+          error: 'Contact message not found',
+          timestamp: new Date(),
+        };
+      }
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete contact message',
         timestamp: new Date(),
       };
     }

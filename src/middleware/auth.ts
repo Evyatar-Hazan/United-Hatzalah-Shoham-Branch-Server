@@ -23,10 +23,17 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
       return;
     }
 
-    const token = authHeader.substring(7);
-    const result = await AuthService.verifyGoogleToken(token);
+    // Refactored: Treat the bearer token as the admin email
+    const email = authHeader.substring(7).trim();
+    const adminsRes = await AuthService.getAdmins();
 
-    if (!result.success || !result.data?.isAdmin) {
+    if (!adminsRes.success || !adminsRes.data) {
+      res.status(500).json(adminsRes);
+      return;
+    }
+
+    const admin = adminsRes.data.find(a => a.email === email);
+    if (!admin) {
       res.status(403).json({
         success: false,
         error: 'Unauthorized or not an admin',
@@ -35,7 +42,12 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
       return;
     }
 
-    req.user = result.data;
+    req.user = {
+      email: admin.email,
+      name: admin.name,
+      picture: admin.picture || '',
+      isAdmin: true,
+    };
     next();
   } catch (error) {
     res.status(500).json({

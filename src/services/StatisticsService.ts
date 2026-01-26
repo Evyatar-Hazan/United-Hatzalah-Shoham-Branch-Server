@@ -1,31 +1,58 @@
-import { BranchStatistics, ApiResponse } from '../types/index';
-
-/* In-memory statistics storage */
-const branchStats: BranchStatistics = {
-  volunteersCount: 150,
-  emergencyCalls: 5000,
-  averageResponseTime: '5 minutes',
-  uptime: 99.8,
-  lastUpdated: new Date(),
-};
+import { Statistics, ApiResponse } from '../types/index';
+import prisma from '../db/prisma';
 
 export class StatisticsService {
-  static async getStatistics(): Promise<ApiResponse<BranchStatistics>> {
-    return {
-      success: true,
-      data: branchStats,
-      timestamp: new Date(),
-    };
-  }
-
-  static async updateStatistics(
-    updates: Partial<BranchStatistics>
-  ): Promise<ApiResponse<BranchStatistics>> {
+  static async getStatistics(): Promise<ApiResponse<Statistics | null>> {
     try {
-      Object.assign(branchStats, updates, { lastUpdated: new Date() });
+      const stats = await prisma.statistics.findFirst({
+        orderBy: { lastUpdated: 'desc' },
+      });
+
+      // Return null if no statistics exist - don't create dummy data
       return {
         success: true,
-        data: branchStats,
+        data: stats || null,
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to fetch statistics',
+        timestamp: new Date(),
+      };
+    }
+  }
+
+  static async updateStatistics(updates: Partial<Statistics>): Promise<ApiResponse<Statistics>> {
+    try {
+      const currentStats = await prisma.statistics.findFirst({
+        orderBy: { lastUpdated: 'desc' },
+      });
+
+      let updatedStats: Statistics;
+      if (currentStats) {
+        updatedStats = await prisma.statistics.update({
+          where: { id: currentStats.id },
+          data: {
+            ...updates,
+            lastUpdated: new Date(),
+          },
+        });
+      } else {
+        updatedStats = await prisma.statistics.create({
+          data: {
+            volunteersCount: updates.volunteersCount || 150,
+            emergencyCalls: updates.emergencyCalls || 2500,
+            averageResponseTime: updates.averageResponseTime || 3,
+            uptime: updates.uptime || 99.9,
+            lastUpdated: new Date(),
+          },
+        });
+      }
+
+      return {
+        success: true,
+        data: updatedStats,
         message: 'Statistics updated successfully',
         timestamp: new Date(),
       };

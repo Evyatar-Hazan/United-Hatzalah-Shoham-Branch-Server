@@ -5,15 +5,17 @@ export interface Donation {
   amount: number;
   donorName: string;
   donorEmail: string;
-  message?: string;
-  timestamp: Date;
+  message: string | null;
   status: 'pending' | 'completed' | 'failed';
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-export interface BranchStatistics {
+export interface Statistics {
+  id: string;
   volunteersCount: number;
   emergencyCalls: number;
-  averageResponseTime: string;
+  averageResponseTime: number;
   uptime: number;
   lastUpdated: Date;
 }
@@ -36,32 +38,40 @@ export interface DonationRequest {
 export interface ContactRequest {
   name: string;
   email: string;
+    phone?: string;
+    subject: string;
   message: string;
-  timestamp?: Date;
 }
 
 export interface GalleryItem {
-  id: number;
+  id: string;
   title: string;
   category: string;
-  imageUrl?: string;
+  imageUrl: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Story {
-  id: number;
+  id: string;
   title: string;
   description: string;
   date: string;
-  image?: string;
+  image: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ContactMessage {
   id: string;
   name: string;
   email: string;
+  phone: string | null;
+  subject: string;
   message: string;
-  timestamp: Date;
-  status: 'received' | 'read' | 'replied';
+  status: 'pending' | 'read' | 'replied';
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface ContactInfo {
@@ -84,14 +94,18 @@ export interface Admin {
   id: string;
   email: string;
   name: string;
-  picture?: string;
-  addedAt: Date;
-  addedBy?: string;
+  picture: string | null;
+  isActive: boolean;
+  lastLogin: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface Donor {
   id: string;
   name: string;
   category: string;
-  logo?: string;
+  logo: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
