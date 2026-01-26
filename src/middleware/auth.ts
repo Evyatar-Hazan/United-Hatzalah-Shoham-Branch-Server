@@ -3,6 +3,7 @@ import { AuthService } from '../services/AuthService';
 
 export interface AuthRequest extends Request {
   user?: {
+    id: string;
     email: string;
     name: string;
     picture: string;
@@ -43,6 +44,7 @@ export const authMiddleware = async (req: AuthRequest, res: Response, next: Next
     }
 
     req.user = {
+      id: admin.id,
       email: admin.email,
       name: admin.name,
       picture: admin.picture || '',

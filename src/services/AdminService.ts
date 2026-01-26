@@ -70,8 +70,8 @@ export class AdminService {
     return AuthService.updateAdmin(id, updates);
   }
 
-  static async deleteAdmin(id: string): Promise<ApiResponse<{ success: boolean }>> {
-    const res = await AuthService.deactivateAdmin(id);
+  static async deleteAdmin(id: string, currentUserId?: string): Promise<ApiResponse<{ success: boolean }>> {
+    const res = await AuthService.deactivateAdmin(id, currentUserId);
     return res;
   }
 

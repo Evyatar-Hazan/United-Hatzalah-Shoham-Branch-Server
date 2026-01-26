@@ -13,15 +13,17 @@ export class AuthService {
           data: {
             email,
             name,
-            picture: picture || '',
+            picture: picture || null,
             isActive: true,
           },
         });
       } else {
+        // Update lastLogin and picture if provided
         admin = await prisma.admin.update({
           where: { id: admin.id },
           data: {
             lastLogin: new Date(),
+            ...(picture && { picture }),
           },
         });
       }
@@ -118,8 +120,31 @@ export class AuthService {
     }
   }
 
-  static async deactivateAdmin(id: string): Promise<ApiResponse<{ success: boolean }>> {
+  static async deactivateAdmin(id: string, currentUserId?: string): Promise<ApiResponse<{ success: boolean }>> {
     try {
+      // Check if user is trying to delete themselves
+      if (currentUserId === id) {
+        return {
+          success: false,
+          error: 'לא ניתן למחוק את עצמך',
+          timestamp: new Date(),
+        };
+      }
+
+      // Check how many active admins exist
+      const activeAdminsCount = await prisma.admin.count({
+        where: { isActive: true },
+      });
+
+      // Must keep at least one admin
+      if (activeAdminsCount <= 1) {
+        return {
+          success: false,
+          error: 'חייב להשאר לפחות אדמין אחד במערכת',
+          timestamp: new Date(),
+        };
+      }
+
       await prisma.admin.update({
         where: { id },
         data: { isActive: false },

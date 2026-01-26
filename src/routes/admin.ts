@@ -269,7 +269,8 @@ router.put('/admins/:id', async (req: AuthRequest, res: Response) => {
 router.delete('/admins/:id', async (req: AuthRequest, res: Response) => {
   try {
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const result = await AdminService.deleteAdmin(id);
+    const currentUserId = req.user?.id;
+    const result = await AdminService.deleteAdmin(id, currentUserId);
     res.json(result);
   } catch (error) {
     res.status(500).json({
