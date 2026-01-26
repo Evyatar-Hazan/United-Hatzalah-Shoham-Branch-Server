@@ -50,6 +50,10 @@ export class AdminService {
     return StatisticsService.updateStatistics(updates);
   }
 
+    static async deleteStatistics(id: string): Promise<ApiResponse<{ success: boolean }>> {
+      return StatisticsService.deleteStatistics(id);
+    }
+
   // Contact Info operations
   // Contact Info methods removed in Prisma refactor
 

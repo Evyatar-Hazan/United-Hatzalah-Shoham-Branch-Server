@@ -203,6 +203,20 @@ router.put('/statistics', async (req: AuthRequest, res: Response) => {
   }
 });
 
+  router.delete('/statistics/:id', async (req: AuthRequest, res: Response) => {
+    try {
+      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+      const result = await AdminService.deleteStatistics(id);
+      res.json(result);
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : 'Internal server error',
+        timestamp: new Date(),
+      });
+    }
+  });
+
 // Contact Info routes removed in Prisma refactor
 
 // Contact Messages

@@ -64,4 +64,32 @@ export class StatisticsService {
       };
     }
   }
+
+    static async deleteStatistics(id: string): Promise<ApiResponse<{ success: boolean }>> {
+      try {
+        await prisma.statistics.delete({
+          where: { id },
+        });
+
+        return {
+          success: true,
+          data: { success: true },
+          message: 'Statistics deleted successfully',
+          timestamp: new Date(),
+        };
+      } catch (error: any) {
+        if (error.code === 'P2025') {
+          return {
+            success: false,
+            error: 'Statistics not found',
+            timestamp: new Date(),
+          };
+        }
+        return {
+          success: false,
+          error: error instanceof Error ? error.message : 'Failed to delete statistics',
+          timestamp: new Date(),
+        };
+      }
+    }
 }
