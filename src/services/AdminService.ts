@@ -1,8 +1,9 @@
-import { GalleryItem, Story, BranchStatistics, ContactInfo, ContactMessage, ApiResponse, Admin } from '../types/index';
+import { GalleryItem, Story, BranchStatistics, ContactInfo, ContactMessage, ApiResponse, Admin, Donation } from '../types/index';
 import { MediaService } from './MediaService';
 import { StatisticsService } from './StatisticsService';
 import { ContactService } from './ContactService';
 import { AuthService } from './AuthService';
+import { DonationService } from './DonationService';
 
 export class AdminService {
   // Gallery operations
@@ -188,4 +189,18 @@ export class AdminService {
 
   static async deleteAdmin(id: string): Promise<ApiResponse<{ success: boolean }>> {
     return AuthService.deleteAdmin(id);
-  }}
+  }
+
+  // Donation Management operations
+  static async getDonations(): Promise<ApiResponse<Donation[]>> {
+    return DonationService.getDonations();
+  }
+
+  static async updateDonation(id: string, updates: Partial<Donation>): Promise<ApiResponse<Donation>> {
+    return DonationService.updateDonation(id, updates);
+  }
+
+  static async deleteDonation(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return DonationService.deleteDonation(id);
+  }
+}

@@ -305,4 +305,46 @@ router.delete('/admins/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
+// Donations Management
+router.get('/donations', async (_req: AuthRequest, res: Response) => {
+  try {
+    const result = await AdminService.getDonations();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
+router.put('/donations/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const result = await AdminService.updateDonation(id, req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
+router.delete('/donations/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const result = await AdminService.deleteDonation(id);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
 export default router;
