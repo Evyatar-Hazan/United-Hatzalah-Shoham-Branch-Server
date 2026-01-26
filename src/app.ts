@@ -1,5 +1,6 @@
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import { DonorsService } from './services/DonorsService';
 import donationsRouter from './routes/donations';
 import statisticsRouter from './routes/statistics';
 import mediaRouter from './routes/media';
@@ -44,6 +45,20 @@ app.get('/api/health', (_req: Request, res: Response) => {
     timestamp: new Date(),
     uptime: process.uptime(),
   });
+});
+
+// Public endpoint for donors (תורמים וחסויות)
+app.get('/api/donors', async (_req: Request, res: Response) => {
+  try {
+    const result = await DonorsService.getDonors();
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
 });
 
 // Routes
