@@ -158,23 +158,7 @@ export class AdminService {
 
   static async updateContactInfo(updates: Partial<ContactInfo>): Promise<ApiResponse<any>> {
     try {
-      const contactResult = await ContactService.getContactInfo();
-      const currentInfo = (contactResult.data || {}) as Partial<ContactInfo>;
-      const contactInfo = {
-        phone: updates.phone || currentInfo.phone || '',
-        email: updates.email || currentInfo.email || '',
-        address: updates.address || currentInfo.address,
-        socialLinks: updates.socialLinks || currentInfo.socialLinks,
-        emergencyNumber: updates.emergencyNumber || currentInfo.emergencyNumber,
-        businessHours: updates.businessHours || currentInfo.businessHours,
-      };
-
-      return {
-        success: true,
-        data: contactInfo,
-        message: 'Contact info updated successfully',
-        timestamp: new Date(),
-      };
+      return ContactService.updateContactInfo(updates);
     } catch (error) {
       return {
         success: false,

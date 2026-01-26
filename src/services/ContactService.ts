@@ -5,7 +5,7 @@ import { ContactInput } from '../utils/validation';
 const contactMessages: ContactMessage[] = [];
 
 /* Contact information for the branch */
-const contactInfo: ContactInfo = {
+let contactInfo: ContactInfo = {
   phone: '+972 1-234-567-89',
   email: 'info@shoham.united-hatzalah.org',
   address: 'שוהם, ישראל',
@@ -66,5 +66,35 @@ export class ContactService {
       data: contactMessages,
       timestamp: new Date(),
     };
+  }
+
+  static async updateContactInfo(updates: Partial<ContactInfo>): Promise<ApiResponse<ContactInfo>> {
+    try {
+      contactInfo = {
+        ...contactInfo,
+        ...updates,
+        socialLinks: {
+          ...contactInfo.socialLinks,
+          ...(updates.socialLinks || {}),
+        },
+        businessHours: {
+          ...contactInfo.businessHours,
+          ...(updates.businessHours || {}),
+        },
+      };
+
+      return {
+        success: true,
+        data: contactInfo,
+        message: 'Contact info updated successfully',
+        timestamp: new Date(),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update contact info',
+        timestamp: new Date(),
+      };
+    }
   }
 }
