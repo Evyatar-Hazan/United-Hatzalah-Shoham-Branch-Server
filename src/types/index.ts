@@ -11,13 +11,14 @@ export interface Donation {
   updatedAt: Date;
 }
 
-export interface Statistics {
+export interface StatItem {
   id: string;
-  volunteersCount: number;
-  emergencyCalls: number;
-  averageResponseTime: number;
-  uptime: number;
-  lastUpdated: Date;
+  title: string;
+  value: number;
+  unit?: string | null;
+  order?: number;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 export interface ApiResponse<T> {

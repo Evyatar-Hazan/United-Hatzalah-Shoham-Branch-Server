@@ -65,14 +65,15 @@ model Story {
   updatedAt   DateTime @updatedAt
 }
 
-// Statistics Model
-model Statistics {
-  id                  String   @id @default(uuid())
-  volunteersCount     Int
-  emergencyCalls      Int
-  averageResponseTime Int      // in minutes
-  uptime              Float    // percentage
-  lastUpdated         DateTime @default(now())
+// Statistics Items Model (each metric is its own record)
+model StatItem {
+  id        String   @id @default(uuid())
+  title     String
+  value     Float
+  unit      String?
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 // Contact Message Model

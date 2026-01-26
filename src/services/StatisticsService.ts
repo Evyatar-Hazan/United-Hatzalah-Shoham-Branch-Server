@@ -1,17 +1,19 @@
-import { Statistics, ApiResponse } from '../types/index';
+import { ApiResponse, StatItem } from '../types/index';
 import prisma from '../db/prisma';
 
 export class StatisticsService {
-  static async getStatistics(): Promise<ApiResponse<Statistics | null>> {
+  static async list(): Promise<ApiResponse<StatItem[]>> {
     try {
-      const stats = await prisma.statistics.findFirst({
-        orderBy: { lastUpdated: 'desc' },
+      const items = await prisma.statItem.findMany({
+        orderBy: [
+          { order: 'asc' },
+          { createdAt: 'asc' },
+        ],
       });
 
-      // Return null if no statistics exist - don't create dummy data
       return {
         success: true,
-        data: stats || null,
+        data: items,
         timestamp: new Date(),
       };
     } catch (error) {
@@ -23,73 +25,89 @@ export class StatisticsService {
     }
   }
 
-  static async updateStatistics(updates: Partial<Statistics>): Promise<ApiResponse<Statistics>> {
+  static async create(payload: Omit<StatItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<StatItem>> {
     try {
-      const currentStats = await prisma.statistics.findFirst({
-        orderBy: { lastUpdated: 'desc' },
+      const created = await prisma.statItem.create({
+        data: {
+          title: payload.title,
+          value: payload.value,
+          unit: payload.unit || null,
+          order: payload.order ?? 0,
+        },
       });
-
-      let updatedStats: Statistics;
-      if (currentStats) {
-        updatedStats = await prisma.statistics.update({
-          where: { id: currentStats.id },
-          data: {
-            ...updates,
-            lastUpdated: new Date(),
-          },
-        });
-      } else {
-        updatedStats = await prisma.statistics.create({
-          data: {
-            volunteersCount: updates.volunteersCount || 150,
-            emergencyCalls: updates.emergencyCalls || 2500,
-            averageResponseTime: updates.averageResponseTime || 3,
-            uptime: updates.uptime || 99.9,
-            lastUpdated: new Date(),
-          },
-        });
-      }
 
       return {
         success: true,
-        data: updatedStats,
-        message: 'Statistics updated successfully',
+        data: created,
+        message: 'Statistic created successfully',
         timestamp: new Date(),
       };
     } catch (error) {
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Failed to update statistics',
+        error: error instanceof Error ? error.message : 'Failed to create statistic',
         timestamp: new Date(),
       };
     }
   }
 
-    static async deleteStatistics(id: string): Promise<ApiResponse<{ success: boolean }>> {
-      try {
-        await prisma.statistics.delete({
-          where: { id },
-        });
+  static async update(id: string, payload: Partial<StatItem>): Promise<ApiResponse<StatItem>> {
+    try {
+      const updated = await prisma.statItem.update({
+        where: { id },
+        data: {
+          title: payload.title,
+          value: payload.value,
+          unit: payload.unit,
+          order: payload.order,
+        },
+      });
 
-        return {
-          success: true,
-          data: { success: true },
-          message: 'Statistics deleted successfully',
-          timestamp: new Date(),
-        };
-      } catch (error: any) {
-        if (error.code === 'P2025') {
-          return {
-            success: false,
-            error: 'Statistics not found',
-            timestamp: new Date(),
-          };
-        }
+      return {
+        success: true,
+        data: updated,
+        message: 'Statistic updated successfully',
+        timestamp: new Date(),
+      };
+    } catch (error: any) {
+      if (error.code === 'P2025') {
         return {
           success: false,
-          error: error instanceof Error ? error.message : 'Failed to delete statistics',
+          error: 'Statistic not found',
           timestamp: new Date(),
         };
       }
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to update statistic',
+        timestamp: new Date(),
+      };
     }
+  }
+
+  static async remove(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    try {
+      await prisma.statItem.delete({ where: { id } });
+
+      return {
+        success: true,
+        data: { success: true },
+        message: 'Statistic deleted successfully',
+        timestamp: new Date(),
+      };
+    } catch (error: any) {
+      if (error.code === 'P2025') {
+        return {
+          success: false,
+          error: 'Statistic not found',
+          timestamp: new Date(),
+        };
+      }
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to delete statistic',
+        timestamp: new Date(),
+      };
+    }
+  }
 }

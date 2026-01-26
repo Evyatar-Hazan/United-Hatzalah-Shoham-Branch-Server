@@ -176,10 +176,10 @@ router.delete('/stories/:id', async (req: AuthRequest, res: Response) => {
   }
 });
 
-// Statistics Management
-router.get('/statistics', async (_req: AuthRequest, res: Response) => {
+// Statistics Management (per item)
+router.get('/stat-items', async (_req: AuthRequest, res: Response) => {
   try {
-    const result = await AdminService.getStatistics();
+    const result = await AdminService.getStatItems();
     res.json(result);
   } catch (error) {
     res.status(500).json({
@@ -190,9 +190,9 @@ router.get('/statistics', async (_req: AuthRequest, res: Response) => {
   }
 });
 
-router.put('/statistics', async (req: AuthRequest, res: Response) => {
+router.post('/stat-items', async (req: AuthRequest, res: Response) => {
   try {
-    const result = await AdminService.updateStatistics(req.body);
+    const result = await AdminService.addStatItem(req.body);
     res.json(result);
   } catch (error) {
     res.status(500).json({
@@ -203,19 +203,33 @@ router.put('/statistics', async (req: AuthRequest, res: Response) => {
   }
 });
 
-  router.delete('/statistics/:id', async (req: AuthRequest, res: Response) => {
-    try {
-      const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-      const result = await AdminService.deleteStatistics(id);
-      res.json(result);
-    } catch (error) {
-      res.status(500).json({
-        success: false,
-        error: error instanceof Error ? error.message : 'Internal server error',
-        timestamp: new Date(),
-      });
-    }
-  });
+router.put('/stat-items/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const result = await AdminService.updateStatItem(id, req.body);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
+
+router.delete('/stat-items/:id', async (req: AuthRequest, res: Response) => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const result = await AdminService.deleteStatItem(id);
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Internal server error',
+      timestamp: new Date(),
+    });
+  }
+});
 
 // Contact Info routes removed in Prisma refactor
 

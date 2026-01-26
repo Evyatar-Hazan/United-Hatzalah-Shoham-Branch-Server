@@ -1,4 +1,4 @@
-import { GalleryItem, Story, Statistics, ContactMessage, ApiResponse, Admin, Donation, Donor } from '../types/index';
+import { GalleryItem, Story, StatItem, ContactMessage, ApiResponse, Admin, Donation, Donor } from '../types/index';
 import { MediaService } from './MediaService';
 import { StatisticsService } from './StatisticsService';
 import { ContactService } from './ContactService';
@@ -42,17 +42,21 @@ export class AdminService {
   }
 
   // Statistics operations
-  static async getStatistics(): Promise<ApiResponse<Statistics | null>> {
-    return StatisticsService.getStatistics();
+  static async getStatItems(): Promise<ApiResponse<StatItem[]>> {
+    return StatisticsService.list();
   }
 
-  static async updateStatistics(updates: Partial<Statistics>): Promise<ApiResponse<Statistics>> {
-    return StatisticsService.updateStatistics(updates);
+  static async addStatItem(item: Omit<StatItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<StatItem>> {
+    return StatisticsService.create(item);
   }
 
-    static async deleteStatistics(id: string): Promise<ApiResponse<{ success: boolean }>> {
-      return StatisticsService.deleteStatistics(id);
-    }
+  static async updateStatItem(id: string, updates: Partial<StatItem>): Promise<ApiResponse<StatItem>> {
+    return StatisticsService.update(id, updates);
+  }
+
+  static async deleteStatItem(id: string): Promise<ApiResponse<{ success: boolean }>> {
+    return StatisticsService.remove(id);
+  }
 
   // Contact Info operations
   // Contact Info methods removed in Prisma refactor

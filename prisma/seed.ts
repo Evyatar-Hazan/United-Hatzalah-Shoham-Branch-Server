@@ -21,20 +21,19 @@ async function main() {
   await prisma.donor.deleteMany({});
   await prisma.donation.deleteMany({});
   await prisma.contactMessage.deleteMany({});
-  await prisma.statistics.deleteMany({});
+  await prisma.statItem.deleteMany({});
   await prisma.admin.deleteMany({});
 
-  // Add Statistics
-  const statistics = await prisma.statistics.create({
-    data: {
-      volunteersCount: 247,
-      emergencyCalls: 3847,
-      averageResponseTime: 4.2,
-      uptime: 99.8,
-      lastUpdated: new Date(),
-    },
+  // Add Statistics (each metric as its own record)
+  const statItems = await prisma.statItem.createMany({
+    data: [
+      { title: 'מתנדבים פעילים', value: 247, unit: null, order: 1 },
+      { title: 'קריאות חירום בשנה', value: 3847, unit: null, order: 2 },
+      { title: 'זמן תגובה ממוצע', value: 4.2, unit: 'דקות', order: 3 },
+      { title: 'זמינות מערכת', value: 99.8, unit: '%', order: 4 },
+    ],
   });
-  console.log('✅ Created statistics:', statistics);
+  console.log(`✅ Created ${statItems.count} statistic items`);
 
   // Add Donors (תורמים וחסויות)
   const donors = await prisma.donor.createMany({
