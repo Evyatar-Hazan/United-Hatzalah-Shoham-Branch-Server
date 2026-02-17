@@ -5,10 +5,7 @@ export class StatisticsService {
   static async list(): Promise<ApiResponse<StatItem[]>> {
     try {
       const items = await prisma.statItem.findMany({
-        orderBy: [
-          { order: 'asc' },
-          { createdAt: 'asc' },
-        ],
+        orderBy: [{ order: 'asc' }, { createdAt: 'asc' }],
       });
 
       return {
@@ -25,7 +22,9 @@ export class StatisticsService {
     }
   }
 
-  static async create(payload: Omit<StatItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<StatItem>> {
+  static async create(
+    payload: Omit<StatItem, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ApiResponse<StatItem>> {
     try {
       const created = await prisma.statItem.create({
         data: {

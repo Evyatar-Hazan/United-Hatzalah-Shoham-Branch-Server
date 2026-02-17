@@ -36,7 +36,7 @@ router.post('/upload-image', upload.single('image'), async (req: AuthRequest, re
     }
 
     const folder = req.body.folder || 'general';
-    
+
     // Try Cloudinary first, if configured
     if (process.env.CLOUDINARY_CLOUD_NAME && process.env.CLOUDINARY_API_KEY) {
       const result = await CloudinaryService.uploadImage(req.file.buffer, folder);

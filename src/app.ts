@@ -21,7 +21,7 @@ const corsOptions = {
       'http://localhost:5177',
       process.env.FRONTEND_URL,
     ];
-    
+
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {

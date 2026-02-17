@@ -1,7 +1,6 @@
 import { Donor, ApiResponse } from '../types/index';
 import prisma from '../db/prisma';
 
-
 export class DonorsService {
   static async getDonors(): Promise<ApiResponse<Donor[]>> {
     try {
@@ -21,7 +20,11 @@ export class DonorsService {
     }
   }
 
-  static async addDonor(name: string, category: string, logo?: string): Promise<ApiResponse<Donor>> {
+  static async addDonor(
+    name: string,
+    category: string,
+    logo?: string
+  ): Promise<ApiResponse<Donor>> {
     try {
       if (!name || !category) {
         return {

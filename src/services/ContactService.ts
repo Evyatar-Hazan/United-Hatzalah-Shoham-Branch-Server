@@ -2,7 +2,9 @@ import { ContactMessage, ContactRequest, ApiResponse } from '../types/index';
 import prisma from '../db/prisma';
 
 export class ContactService {
-  static async submitContactMessage(contactData: ContactRequest): Promise<ApiResponse<ContactMessage>> {
+  static async submitContactMessage(
+    contactData: ContactRequest
+  ): Promise<ApiResponse<ContactMessage>> {
     try {
       const message = await prisma.contactMessage.create({
         data: {
@@ -49,7 +51,10 @@ export class ContactService {
     }
   }
 
-  static async updateMessageStatus(id: string, status: 'pending' | 'read' | 'replied'): Promise<ApiResponse<ContactMessage>> {
+  static async updateMessageStatus(
+    id: string,
+    status: 'pending' | 'read' | 'replied'
+  ): Promise<ApiResponse<ContactMessage>> {
     try {
       const message = await prisma.contactMessage.update({
         where: { id },
@@ -63,7 +68,12 @@ export class ContactService {
         timestamp: new Date(),
       };
     } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'code' in error && (error as any).code === 'P2025') {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error as any).code === 'P2025'
+      ) {
         return {
           success: false,
           error: 'Contact message not found',
@@ -91,7 +101,12 @@ export class ContactService {
         timestamp: new Date(),
       };
     } catch (error: unknown) {
-      if (error && typeof error === 'object' && 'code' in error && (error as any).code === 'P2025') {
+      if (
+        error &&
+        typeof error === 'object' &&
+        'code' in error &&
+        (error as any).code === 'P2025'
+      ) {
         return {
           success: false,
           error: 'Contact message not found',

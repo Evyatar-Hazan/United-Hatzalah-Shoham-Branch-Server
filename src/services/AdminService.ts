@@ -1,4 +1,13 @@
-import { GalleryItem, Story, StatItem, ContactMessage, ApiResponse, Admin, Donation, Donor } from '../types/index';
+import {
+  GalleryItem,
+  Story,
+  StatItem,
+  ContactMessage,
+  ApiResponse,
+  Admin,
+  Donation,
+  Donor,
+} from '../types/index';
 import { MediaService } from './MediaService';
 import { StatisticsService } from './StatisticsService';
 import { ContactService } from './ContactService';
@@ -12,11 +21,16 @@ export class AdminService {
     return MediaService.getGalleryItems();
   }
 
-  static async addGalleryItem(item: Omit<GalleryItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<GalleryItem>> {
+  static async addGalleryItem(
+    item: Omit<GalleryItem, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ApiResponse<GalleryItem>> {
     return MediaService.addGalleryItem(item);
   }
 
-  static async updateGalleryItem(id: string, updates: Partial<GalleryItem>): Promise<ApiResponse<GalleryItem>> {
+  static async updateGalleryItem(
+    id: string,
+    updates: Partial<GalleryItem>
+  ): Promise<ApiResponse<GalleryItem>> {
     return MediaService.updateGalleryItem(id, updates);
   }
 
@@ -29,7 +43,9 @@ export class AdminService {
     return MediaService.getStories();
   }
 
-  static async addStory(story: Omit<Story, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Story>> {
+  static async addStory(
+    story: Omit<Story, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ApiResponse<Story>> {
     return MediaService.addStory(story);
   }
 
@@ -46,11 +62,16 @@ export class AdminService {
     return StatisticsService.list();
   }
 
-  static async addStatItem(item: Omit<StatItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<StatItem>> {
+  static async addStatItem(
+    item: Omit<StatItem, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ApiResponse<StatItem>> {
     return StatisticsService.create(item);
   }
 
-  static async updateStatItem(id: string, updates: Partial<StatItem>): Promise<ApiResponse<StatItem>> {
+  static async updateStatItem(
+    id: string,
+    updates: Partial<StatItem>
+  ): Promise<ApiResponse<StatItem>> {
     return StatisticsService.update(id, updates);
   }
 
@@ -70,7 +91,11 @@ export class AdminService {
     return AuthService.getAdmins();
   }
 
-  static async addAdmin(adminData: { email: string; name: string; picture?: string }): Promise<ApiResponse<Admin>> {
+  static async addAdmin(adminData: {
+    email: string;
+    name: string;
+    picture?: string;
+  }): Promise<ApiResponse<Admin>> {
     return AuthService.findOrCreateAdmin(adminData.email, adminData.name, adminData.picture);
   }
 
@@ -78,7 +103,10 @@ export class AdminService {
     return AuthService.updateAdmin(id, updates);
   }
 
-  static async deleteAdmin(id: string, currentUserId?: string): Promise<ApiResponse<{ success: boolean }>> {
+  static async deleteAdmin(
+    id: string,
+    currentUserId?: string
+  ): Promise<ApiResponse<{ success: boolean }>> {
     const res = await AuthService.deactivateAdmin(id, currentUserId);
     return res;
   }
@@ -88,7 +116,10 @@ export class AdminService {
     return DonationService.getDonations();
   }
 
-  static async updateDonation(id: string, updates: Partial<Donation>): Promise<ApiResponse<Donation>> {
+  static async updateDonation(
+    id: string,
+    updates: Partial<Donation>
+  ): Promise<ApiResponse<Donation>> {
     return DonationService.updateDonation(id, updates);
   }
 
@@ -101,7 +132,11 @@ export class AdminService {
     return DonorsService.getDonors();
   }
 
-  static async addDonor(name: string, category: string, logo?: string): Promise<ApiResponse<Donor>> {
+  static async addDonor(
+    name: string,
+    category: string,
+    logo?: string
+  ): Promise<ApiResponse<Donor>> {
     return DonorsService.addDonor(name, category, logo);
   }
 

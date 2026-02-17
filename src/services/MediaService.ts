@@ -22,7 +22,9 @@ export class MediaService {
     }
   }
 
-  static async addGalleryItem(item: Omit<GalleryItem, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<GalleryItem>> {
+  static async addGalleryItem(
+    item: Omit<GalleryItem, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ApiResponse<GalleryItem>> {
     try {
       const newItem = await prisma.galleryItem.create({
         data: item,
@@ -43,7 +45,10 @@ export class MediaService {
     }
   }
 
-  static async updateGalleryItem(id: string, updates: Partial<GalleryItem>): Promise<ApiResponse<GalleryItem>> {
+  static async updateGalleryItem(
+    id: string,
+    updates: Partial<GalleryItem>
+  ): Promise<ApiResponse<GalleryItem>> {
     try {
       const item = await prisma.galleryItem.update({
         where: { id },
@@ -120,7 +125,9 @@ export class MediaService {
     }
   }
 
-  static async addStory(story: Omit<Story, 'id' | 'createdAt' | 'updatedAt'>): Promise<ApiResponse<Story>> {
+  static async addStory(
+    story: Omit<Story, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<ApiResponse<Story>> {
     try {
       const newStory = await prisma.story.create({
         data: story,

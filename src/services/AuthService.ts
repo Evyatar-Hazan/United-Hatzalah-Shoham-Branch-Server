@@ -2,7 +2,11 @@ import { Admin, ApiResponse } from '../types/index';
 import prisma from '../db/prisma';
 
 export class AuthService {
-  static async findOrCreateAdmin(email: string, name: string, picture?: string): Promise<ApiResponse<Admin>> {
+  static async findOrCreateAdmin(
+    email: string,
+    name: string,
+    picture?: string
+  ): Promise<ApiResponse<Admin>> {
     try {
       let admin = await prisma.admin.findUnique({
         where: { email },
@@ -120,7 +124,10 @@ export class AuthService {
     }
   }
 
-  static async deactivateAdmin(id: string, currentUserId?: string): Promise<ApiResponse<{ success: boolean }>> {
+  static async deactivateAdmin(
+    id: string,
+    currentUserId?: string
+  ): Promise<ApiResponse<{ success: boolean }>> {
     try {
       // Check if user is trying to delete themselves
       if (currentUserId === id) {

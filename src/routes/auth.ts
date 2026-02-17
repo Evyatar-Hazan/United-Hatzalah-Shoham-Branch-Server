@@ -16,7 +16,7 @@ router.post('/google-verify', async (req: Request, res: Response) => {
       return;
     }
     const result = await AuthService.findOrCreateAdmin(email, name, picture);
-    
+
     // Add isAdmin flag to the response data
     if (result.success && result.data) {
       res.json({
@@ -24,7 +24,7 @@ router.post('/google-verify', async (req: Request, res: Response) => {
         data: {
           ...result.data,
           isAdmin: true,
-        }
+        },
       });
     } else {
       res.json(result);

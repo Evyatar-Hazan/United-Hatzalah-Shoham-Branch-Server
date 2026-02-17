@@ -39,8 +39,8 @@ export interface DonationRequest {
 export interface ContactRequest {
   name: string;
   email: string;
-    phone?: string;
-    subject: string;
+  phone?: string;
+  subject: string;
   message: string;
 }
 
