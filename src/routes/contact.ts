@@ -1,5 +1,6 @@
-import { Router, Response } from 'express';
+import { Router, Response, Request } from 'express';
 import { ContactController } from '../controllers/ContactController';
+import prisma from '../db/prisma';
 
 const router = Router();
 
@@ -26,6 +27,24 @@ router.get('/info', (_req, res: Response) => {
       },
     },
   });
+});
+
+// Initialize admin seed (helper endpoint)
+router.post('/init-admin', async (req: Request, res: Response) => {
+  try {
+    const admin = await prisma.admin.upsert({
+      where: { email: 'evyatarhazan3.14@gmail.com' },
+      update: {},
+      create: {
+        email: 'evyatarhazan3.14@gmail.com',
+        name: 'Evyatar Hazan',
+        isActive: true,
+      },
+    });
+    res.json({ success: true, data: admin });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error instanceof Error ? error.message : 'Error' });
+  }
 });
 
 export default router;
