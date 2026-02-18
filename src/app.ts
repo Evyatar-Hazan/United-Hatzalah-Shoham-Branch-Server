@@ -57,6 +57,23 @@ app.get('/api/health', (_req: Request, res: Response) => {
   });
 });
 
+// Debug endpoint - check environment variables
+app.get('/api/debug', (_req: Request, res: Response) => {
+  const dbVars = Object.keys(process.env).filter((k) =>
+    k.toLowerCase().includes('database') ||
+    k.toLowerCase().includes('neon') ||
+    k.toLowerCase().includes('url')
+  );
+
+  res.json({
+    database_url: process.env.DATABASE_URL ? `${process.env.DATABASE_URL.substring(0, 20)}...` : 'NOT SET',
+    frontend_url: process.env.FRONTEND_URL || 'NOT SET',
+    node_env: process.env.NODE_ENV,
+    dbVars,
+    totalEnvVars: Object.keys(process.env).length,
+  });
+});
+
 // Public endpoint for donors (תורמים וחסויות)
 app.get('/api/donors', async (_req: Request, res: Response) => {
   try {
