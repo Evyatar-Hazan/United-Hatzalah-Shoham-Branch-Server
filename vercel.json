@@ -1,15 +1,5 @@
 {
   "version": 2,
-  "env": {
-    "DATABASE_URL": "@DATABASE_URL",
-    "FRONTEND_URL": "@FRONTEND_URL",
-    "CLOUDINARY_CLOUD_NAME": "@CLOUDINARY_CLOUD_NAME",
-    "CLOUDINARY_API_KEY": "@CLOUDINARY_API_KEY",
-    "CLOUDINARY_API_SECRET": "@CLOUDINARY_API_SECRET",
-    "JWT_SECRET": "@JWT_SECRET",
-    "GOOGLE_CLIENT_ID": "@GOOGLE_CLIENT_ID",
-    "GOOGLE_CLIENT_SECRET": "@GOOGLE_CLIENT_SECRET"
-  },
   "builds": [
     {
       "src": "api/handler.ts",
