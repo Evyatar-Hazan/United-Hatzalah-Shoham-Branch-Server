@@ -1,15 +1,27 @@
 import { PrismaClient } from '@prisma/client';
 
-// Log environment setup for debugging
-if (!process.env.DATABASE_URL) {
-  console.error('❌ DATABASE_URL is not set!');
-  console.log('Available env vars:', Object.keys(process.env).filter((k) => k.includes('DATABASE') || k.includes('NEON')));
-} else {
-  console.log('✅ DATABASE_URL is set');
-}
+let prismaInstance: PrismaClient | null = null;
 
-const prisma = new PrismaClient({
-  log: ['error', 'warn'],
-});
+export const getPrismaClient = (): PrismaClient => {
+  if (!prismaInstance) {
+    const url = process.env.DATABASE_URL;
+    
+    if (!url) {
+      const available = Object.keys(process.env)
+        .filter((k) => k.toLowerCase().includes('database') || k.toLowerCase().includes('neon'))
+        .join(', ');
+      throw new Error(`DATABASE_URL not set. Available: ${available}`);
+    }
+    
+    prismaInstance = new PrismaClient({
+      log: ['error', 'warn'],
+    });
+    console.log('✅ Prisma Client initialized');
+  }
+  
+  return prismaInstance;
+};
 
+// For backward compatibility with existing imports
+const prisma = getPrismaClient();
 export default prisma;
