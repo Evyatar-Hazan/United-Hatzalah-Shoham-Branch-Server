@@ -57,7 +57,7 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
 });
 
 // Handle preflight requests
-app.options('*', (_req: Request, res: Response, next: NextFunction) => {
+app.options('*', (_req: Request, res: Response, _next: NextFunction) => {
   const origin = _req.get('origin');
   res.setHeader('Access-Control-Allow-Origin', origin || '*');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
