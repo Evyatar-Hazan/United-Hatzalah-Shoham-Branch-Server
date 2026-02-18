@@ -30,7 +30,7 @@ router.get('/info', (_req, res: Response) => {
 });
 
 // Initialize admin seed (helper endpoint)
-router.post('/init-admin', async (req: Request, res: Response) => {
+router.post('/init-admin', async (_req: Request, res: Response) => {
   try {
     const admin = await prisma.admin.upsert({
       where: { email: 'evyatarhazan3.14@gmail.com' },
