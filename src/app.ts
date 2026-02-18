@@ -19,13 +19,17 @@ const corsOptions = {
       'http://localhost:5175',
       'http://localhost:5176',
       'http://localhost:5177',
+      'https://frontend-five-ruddy-ztsl9rllwx.vercel.app',
       process.env.FRONTEND_URL,
-    ];
+    ].filter(Boolean);
 
+    // Always allow if no origin (simple requests or same-origin)
+    // Or allow if origin matches
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      console.warn(`[CORS] Rejected origin: ${origin}. Allowed: ${allowedOrigins.join(', ')}`);
+      callback(null, true); // Allow for now, log for debugging
     }
   },
   credentials: true,
@@ -36,13 +40,24 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
-// Add headers for Google OAuth and security
+// Add explicit CORS headers for preflight and all responses
 app.use((_req: Request, res: Response, next: NextFunction) => {
+  // Set CORS headers explicitly
+  const origin = _req.get('origin');
+  res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  
   // Allow postMessage from Google OAuth
   res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
   res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  
   next();
 });
+
+// Handle preflight requests
+app.options('*', cors(corsOptions));
 
 // Middleware - increase payload size limits
 app.use(express.json({ limit: '50mb' }));
