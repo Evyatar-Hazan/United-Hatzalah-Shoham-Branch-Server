@@ -59,18 +59,21 @@ app.get('/api/health', (_req: Request, res: Response) => {
 
 // Debug endpoint - check environment variables
 app.get('/api/debug', (_req: Request, res: Response) => {
-  const dbVars = Object.keys(process.env).filter((k) =>
-    k.toLowerCase().includes('database') ||
-    k.toLowerCase().includes('neon') ||
-    k.toLowerCase().includes('url')
-  );
+  const allKeys = Object.keys(process.env).sort();
+  const filteredVars: Record<string, string> = {};
+  
+  allKeys.forEach((key) => {
+    if (key.toLowerCase().includes('database') ||
+        key.toLowerCase().includes('neon') ||
+        key.toLowerCase().includes('postgres') ||
+        key.toLowerCase().includes('url')) {
+      filteredVars[key] = process.env[key]?.substring(0, 50) || 'SET TO EMPTY';
+    }
+  });
 
   res.json({
-    database_url: process.env.DATABASE_URL ? `${process.env.DATABASE_URL.substring(0, 20)}...` : 'NOT SET',
-    frontend_url: process.env.FRONTEND_URL || 'NOT SET',
-    node_env: process.env.NODE_ENV,
-    dbVars,
-    totalEnvVars: Object.keys(process.env).length,
+    all_keys: allKeys,
+    filtered_vars: filteredVars,
   });
 });
 
