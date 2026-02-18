@@ -1,23 +1,34 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import app from '../src/app';
+
+let app: any = null;
+let initError: Error | null = null;
+
+const getApp = () => {
+  if (!app) {
+    try {
+      app = require('../src/app').default;
+    } catch (error) {
+      initError = error instanceof Error ? error : new Error(String(error));
+      throw error;
+    }
+  }
+  return app;
+};
 
 export default async (req: VercelRequest, res: VercelResponse) => {
-  // Log environment at request time
-  console.log('[HANDLER] Request to:', req.url);
-  console.log('[HANDLER] DATABASE_URL set:', !!process.env.DATABASE_URL);
-  
-  if (!process.env.DATABASE_URL) {
-    console.error('[HANDLER] ❌ DATABASE_URL is missing!');
-    const dbVars = Object.keys(process.env).filter((k) => 
-      k.toLowerCase().includes('database') || 
-      k.toLowerCase().includes('neon') ||
-      k.toLowerCase().includes('url')
-    );
-    console.error('[HANDLER] Available DB-like vars:', dbVars);
-    console.error('[HANDLER] Total env vars:', Object.keys(process.env).length);
-  } else {
-    console.log('[HANDLER] ✅ DATABASE_URL is available');
+  try {
+    console.log('[HANDLER] Request to:', req.url);
+    console.log('[HANDLER] DATABASE_URL set:', !!process.env.DATABASE_URL);
+    console.log('[HANDLER] DATABASE_URL starts with:', process.env.DATABASE_URL?.substring(0, 25));
+    
+    const app = getApp();
+    return app(req, res);
+  } catch (error) {
+    console.error('[HANDLER] Error:', error);
+    res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+      details: initError ? initError.message : 'No init error',
+    });
   }
-
-  return app(req, res);
 };
