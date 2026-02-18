@@ -57,7 +57,16 @@ app.use((_req: Request, res: Response, next: NextFunction) => {
 });
 
 // Handle preflight requests
-app.options('*', cors(corsOptions));
+app.options('*', (_req: Request, res: Response, next: NextFunction) => {
+  const origin = _req.get('origin');
+  res.setHeader('Access-Control-Allow-Origin', origin || '*');
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, PATCH, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  res.sendStatus(200);
+});
 
 // Middleware - increase payload size limits
 app.use(express.json({ limit: '50mb' }));
