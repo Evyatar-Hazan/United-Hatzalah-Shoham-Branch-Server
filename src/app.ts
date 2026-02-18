@@ -36,6 +36,14 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+// Add headers for Google OAuth and security
+app.use((req: Request, res: Response, next: NextFunction) => {
+  // Allow postMessage from Google OAuth
+  res.setHeader('Cross-Origin-Opener-Policy', 'same-origin-allow-popups');
+  res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp');
+  next();
+});
+
 // Middleware - increase payload size limits
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
